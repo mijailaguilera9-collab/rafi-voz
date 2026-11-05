@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rafi lee · Lectura en voz alta (prototipo)</title>
+<style>
+:root{--azul:#1f3b73;--ins:#152a52;--cel:#4a90e2;--coral:#f25c54;--nar:#f6a03d;--verde:#5aab58;--am:#f4d35e;--bg:#f3f6fb;--line:#dde4f0;--mut:#5b6b8c;--ok-l:#e5f4e5;--err-l:#fde8e7;--warn-l:#fdf0dc;--pri-l:#e6edf8}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ins);line-height:1.45}
+header{background:var(--azul);color:#fff;padding:12px 20px;border-bottom:5px solid var(--cel)}
+header b{font-size:20px}header span{opacity:.8;font-size:13px;margin-left:8px}
+main{max-width:900px;margin:auto;padding:18px 16px 50px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(21,42,82,.06)}
+h1,h2{margin:.1em 0 .4em;color:var(--azul)}h2{font-size:20px}
+label{font-weight:700;display:block;margin:10px 0 4px}
+select,button{font:inherit;font-size:17px}
+select{padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:#fff;min-width:230px;max-width:100%}
+.btn{padding:11px 20px;border-radius:12px;border:2px solid var(--azul);background:#fff;color:var(--azul);font-weight:700;cursor:pointer}
+.btn.pri{background:var(--azul);color:#fff}.btn.ok{background:var(--verde);border-color:var(--verde);color:#fff}.btn:disabled{opacity:.45;cursor:default}
+.btn.ghost{border-color:var(--line);color:var(--mut)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.mut{color:var(--mut)}.small{font-size:14px}
+.aviso{background:var(--pri-l);border-left:5px solid var(--cel);padding:10px 14px;border-radius:8px;font-size:15px}
+.meter{height:16px;background:#e9eef8;border-radius:999px;overflow:hidden;min-width:200px;flex:1}.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--verde),var(--am),var(--coral));transition:width .08s}
+.texto{font-size:27px;line-height:2;white-space:pre-wrap;word-break:normal;padding:6px 4px}
+.w{border-radius:6px;padding:1px 2px}
+.w.leida{background:#dcebfb}
+.w.cur{box-shadow:inset 0 -4px 0 var(--nar)}
+.w.dud{background:var(--warn-l);box-shadow:inset 0 -3px 0 var(--nar)}
+.w.err{background:var(--err-l);box-shadow:inset 0 -3px 0 var(--coral)}
+.w.rev{outline:2px dotted var(--azul)}
+.rev .w{cursor:pointer}.rev .w:hover{outline:2px solid var(--cel)}
+.w.sinleer{color:#8a96b2}
+.cuenta{font-size:76px;font-weight:900;color:var(--azul);text-align:center;margin:20px 0}
+.tbar{height:14px;background:#e9eef8;border-radius:999px;overflow:hidden}.tbar>i{display:block;height:100%;background:var(--cel);width:100%}
+.kpis{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0}.kpi{flex:1;min-width:130px;background:var(--pri-l);border-radius:14px;padding:10px 14px;text-align:center}.kpi b{display:block;font-size:34px;color:var(--azul)}.kpi span{font-size:13px;color:var(--mut)}
+.cat{display:inline-block;padding:4px 14px;border-radius:999px;font-weight:800;background:var(--am);color:var(--ins)}
+.cat.si{background:#c9ecc9}.cat.no{background:#fbd9d6}
+.leyenda span{display:inline-block;margin-right:14px;font-size:14px}.leyenda .w{font-size:14px;padding:2px 6px}
+pre{background:#0f1f3d;color:#d9e6ff;padding:12px;border-radius:10px;overflow:auto;font-size:12px;max-height:220px}
+details{margin-top:10px}summary{cursor:pointer;font-weight:700;color:var(--azul)}
+.hid{display:none}
+</style>
+</head>
+<body>
+<header><b>🐱 Rafi lee</b><span>Lectura en voz alta · prototipo de prueba</span></header>
+<main id="app"></main>
+
+<script>
+/* ===================== Datos ===================== */
+const TEXTOS = [{"id":"DL3-01","g":3,"t":"El zorro y el gallo","x":"Vagaba por el campo un zorro con mucha hambre, cuando de pronto vio un apetitoso gallo cantando arriba de un árbol. Entonces, se le acercó y le dijo con mucho entusiasmo:\n—Querido amigo gallo, tengo una gran noticia que darte. El gallo lo miró sorprendido y le preguntó:\n—¿Ah sí? ¿Cuál es la gran noticia que me traes, amigo zorro?\n—Que los zorros hemos firmado la paz con las aves de corral, así que ya no estamos en guerra. Todos los animales somos amigos. Baja rápido para darte un fuerte abrazo y así podremos celebrar nuestra amistad.\nEl gallo le respondió:\n—¡Oh, qué buena noticia! Tanto tiempo que esperábamos esta paz. Mira hacia allá. Un perro viene a toda carrera a darte la misma noticia, amigo zorro.\nAl oír esto, el zorro escapó asustado mientras le decía al gallo:\n—Bueno, será otro día. ¡Estoy tan apurado que la celebración de nuestra paz será en otro momento!\nEl zorro se fue corriendo con mucha rabia por no haber conseguido su presa, mientras el gallo se quedó muy tranquilo riéndose arriba del árbol, pues la verdad es que no veía ningún perro por el camino. Le resultaba un auténtico placer haber engañado al zorro. Y allí se quedó cantando su quiquiriquí, qué quiere decir: “¡Co-co-ro-có! De aquí no me muevo yo”.\nMoraleja: Siempre hay que dudar de las palabras de quienes nos halagan, pues muchas veces ocultan una segunda intención.\nFábula de Esopo"},{"id":"DL3-02","g":3,"t":"La abeja haragana","x":"Había una vez en una colmena una abeja que no quería trabajar, es decir, recorría los árboles uno por uno para tomar el jugo de las flores; pero en vez de conservarlo para convertirlo en miel, se lo tomaba del todo.\nEra, pues, una abeja haragana. Todas las mañanas, apenas el sol calentaba el aire, la abejita se asomaba a la puerta de la colmena, veía que hacía buen tiempo, se peinaba con las patas, como hacen las moscas, y echaba entonces a volar, muy contenta del lindo día. Zumbaba muerta de gusto de flor en flor, entraba en la colmena, volvía a salir, y así se lo pasaba todo el día mientras las otras abejas se mataban trabajando para llenar la colmena de miel, porque la miel es el alimento de las abejas recién nacidas.\nComo las abejas son muy serias, comenzaron a disgustarse con el proceder de la hermana haragana. En la puerta de las colmenas hay siempre unas cuantas abejas que están de guardia para cuidar que no entren bichos en la colmena. Estas abejas suelen ser muy viejas, con gran experiencia de la vida y tienen el lomo pelado porque han perdido todos los pelos de rozar contra la puerta de la colmena.\nUn día, pues, detuvieron a la abeja haragana cuando iba a entrar, diciéndole:\n-Compañera: es necesario que trabajes, porque las abejas debemos trabajar. La abejita contestó:\n—Yo ando todo el día volando, y me canso mucho.\nHoracio Quiroga (uruguayo) Fragmento"},{"id":"DL4-01","g":4,"t":"Misterio en la Patagonia","x":"Antonia irrumpió en el dormitorio de su hermano Pablo y dijo con seriedad y firmeza:\n—Algo pasa.\nDiego, su primo, levantó los ojos de la pantalla. Estaba terminando una presentación para la clase de Biología y no se distraía cuando estaba concentrado. Pablo siguió lanzando la pelota hacia una canasta sujeta sobre la puerta. Se ponía de espaldas y daba un brinco antes de acertar.\n—¡Hasta con los ojos cerrados! —exclamó orgulloso.\n—Estás a dos centímetros, cualquiera lo logra —respondió su hermana. —Te desafío.\n—Basta de pelotitas, les estoy diciendo que algo pasa.\n—Las amebas son impresionantes —dijo Diego—. ¿Sabían ustedes que, a pesar de ser organismos unicelulares, tienen la capacidad de producir muchas enfermedades? Como la amebiasis, que es la más conocida, pero hay otras que…\n—Por favor, ahórranos tu disertación, donde seguro sacarás la mejor nota. —Igual que yo, porque el trabajo es en parejas —aclaró Pablo, ufano, como si hubiera participado en la tarea y mereciera la misma calificación que su primo—. Este es el último trabajo y por fin llegarán las vacaciones de primavera. —Bien, entonces los dejo con la duda de que está pasando. Yo iré a informarme y no les pienso contar, aunque mueran de curiosidad —dijo Antonia con un tono de voz dramático, como preparando una salida teatral.\nDiego cerró la computadora y la miró con paciencia. Él era hijo único y su mamá trabajaba largas jornadas, por eso pasaba los días de semana con sus primos y, a pesar de que Antonia solía molestarlos, a él le divertía esta prima mayor tan expresiva y nunca se enojaba con ella, como le sucedía a Pablo.\nBeatriz García-Huidobro (chilena) Fragmento"},{"id":"DL4-02","g":4,"t":"El farol del cerro","x":"Mateo vivía al pie de un cerro lleno de árboles altos y senderos estrechos, donde la bruma de la mañana parecía formar un enorme velo plateado. Muchas tardes subía a caminar solo, pensando en cosas que nadie conocía: los miedos que guardaba en silencio, los sueños que nunca decía en voz alta. Un día, mientras subía por el camino de piedras, encontró un objeto brillante escondido entre las raíces de un viejo boldo. Era un pequeño farol metálico, liviano y frío al tacto. Parecía muy antiguo, pero estaba en perfecto estado, como si alguien lo hubiese dejado allí hacía apenas unos minutos.\n—¡Qué extraño! —murmuró Mateo, mirándolo sorprendido. En ese momento escuchó pasos rápidos detrás de él. Era Emilia su vecina.\n—¡Pensé que ya no te alcanzaba! —dijo, tratando de recuperar el aire—. Te vi venir para acá y quise acompañarte. Mateo sonrió tímidamente. Nunca había hablado mucho con Emilia, pero le caía bien.\n—Mira lo que encontré —dijo mostrándole el farol. Emilia abrió los ojos con asombro.\n—¡Parece un farol mágico! ¿Crees que funcione? Mateo dudó.\n—No lo sé. Tal vez deberíamos probarlo cuando oscurezca. Ambos se sentaron en una roca mirando el horizonte. El sol comenzó a esconderse y el cielo se tornó rojo y violeta. Entonces, sin decir palabra, Mateo giró la pequeña llave del farol. Para su sorpresa, una luz suave y cálida iluminó el cerro, como si despertara secretos guardados por siglos. Las hojas brillaron y, por un momento, todo parecía distinto, más vivo, más posible.\n—Es hermoso —susurró Emilia. Mateo respiró hondo, quedó impresionado al ver tanta belleza, era como ver una gran pintura o una pieza de arte.\n—Creo que podríamos venir todas las tardes a mirar este bello paisaje —dijo—. Los secretos del cerro son mejores si se comparten. Emilia le devolvió la sonrisa.\n—Entonces somos equipo Y bajo la luz del farol, comenzaron una amistad que brilló más fuerte que cualquier misterio."},{"id":"DL5-01","g":5,"t":"Jardín de Chile","x":"Chile tiene una flora con más de cinco mil especies diferentes y la mayoría de ellas son endémicas, crecen solo en esta parte del mundo. Esta variedad es producto de la diversidad del clima y del territorio, con lugares inhóspitos como el altiplano o el desierto de Atacama, además de zonas muy frías, como la Patagonia, o las ajetreadas áreas urbanas. El océano, la cordillera y el desierto son barreras que han creado ecosistemas aislados. Junto a la flora vive una fauna diversa, y entre ambos se relacionan de distintas maneras.\nLa flora crece en un hábitat formado por aire, rocas, agua, sol y minerales a los que se les llama elementos no vivos del medio ambiente. Además, interactúa con elementos vivos, como animales, plantas y hongos. Una de las formas de relacionarse es la polinización, que ocurre cuando los animales transportan el polen y así se logra la formación de la semilla. Hay varios polinizadores que son muy comunes, como las abejas, mariposas y picaflores. Las flores los atraen con su color, forma y aroma. Si no, el viento transporta el polen, como ocurre con el roble chileno.\nAdemás de la polinización, hay otra forma básica de relación, que también ayuda a trasladar las semillas: la alimentación. Muchos animales herbívoros, como los insectos, comen las hojas y los tallos. Otros animales comen exclusiva o parcialmente los frutos de las plantas. En este caso, los animales comen el fruto y después expulsan las semillas a través de su excremento, lo que permite la propagación de la especie.\nTambién existen otras relaciones menos generosas, como los depredadores, es decir animales que se comen a las plantas.\nLoreto Salinas y Camila Moya (chilenas) Fragmento"},{"id":"DL5-02","g":5,"t":"¡Me encantan los gatos!","x":"Los gatos son animales curiosos y muy observadores, capaces de percibir detalles que para los seres humanos pasan desapercibidos. Esto se debe a que poseen sentidos muy desarrollados, que les permiten adaptarse a distintos entornos y sobrevivir con habilidad.\nLa vista de los gatos es uno de sus sentidos más sorprendentes. Pueden ver con muy poca luz y detectar movimientos pequeños incluso a distancia. Esto se debe a que sus ojos tienen una estructura especial que refleja la luz y les permite orientarse durante la noche. Sin embargo, durante el día no ven mejor que nosotros.\nEl oído también es fundamental para ellos. Los gatos pueden escuchar sonidos muy agudos y distinguir con precisión el lugar exacto desde donde provienen. Por eso, cuando escuchan un ruido desconocido, giran rápidamente sus orejas y se quedan inmóviles para localizarlo. Su audición es tan fina que pueden detectar animales pequeños moviéndose entre la hierba.\nEl olfato es el sentido que más utilizan para comunicarse. Gracias a él reconocen a sus dueños, marcan su territorio y detectan si un alimento está en mal estado. Para los gatos, los aromas cumplen una función muy importante, por eso frotan su cabeza y su cuerpo en objetos y personas: así dejan su olor y demuestran confianza.\nAdemás, los gatos cuentan con bigotes muy sensibles llamados vibrisas. Estas funcionan como pequeñas antenas que les ayudan a calcular la distancia entre objetos y a desplazarse sin chocar en lugares estrechos. Cuando están concentrados o nerviosos, sus vibrisas se mueven hacia adelante como una señal de alerta.\nConocer cómo funcionan los sentidos de los gatos ayuda a comprender su comportamiento y a cuidarlos mejor. Cada uno de sus sentidos cumple un propósito y les permite relacionarse con el mundo de una manera sorprendente."},{"id":"DL6-01","g":6,"t":"La cumbre imposible","x":"Siempre mirábamos el cerro detrás de la escuela como si fuera un gigante dormido. Desde lejos parecía fácil llegar hasta la cruz de madera que estaba en la cima, pero nunca nadie de nuestro curso lo había logrado. Yo decía que algún día lo intentaría, pero solo para sonar valiente. En realidad, me daba miedo.\nUna tarde de septiembre, mientras esperábamos el bus, Tomás anunció con voz segura:\n—Mañana subiremos. Sin excusas. Yo me reí para disimular el susto, pero él me miró fijo.\n—¿O te vas a echar para atrás? No respondí. Sentí el desafío clavarse como una espina.\nAl día siguiente, partimos temprano. El aire olía a pasto húmedo y la tierra estaba blanda bajo las zapatillas. Al principio, avanzamos rápido, hablando alto y riendo para ocultar el cansancio. Pero a mitad del camino la pendiente se volvió brutal. La tierra cedía, las piedras rodaban y mis piernas temblaban.\n—¿Seguimos? —pregunté cansado.\n—Obvio —respondió Tomás—. No vinimos hasta acá para rendirnos.\nContinuamos en silencio. Yo contaba mis pasos como si fueran latidos: uno, dos, tres…. Sentía el corazón golpearme en el cuello y un zumbido en los oídos. En un punto, quise detenerme:\n—Tomás… no puedo más. Él se detuvo, respiró profundo y me pasó su botella de agua.\n—Sí puedes. Solo mira a dónde has llegado. Falta poco.\nNo sé de dónde saqué fuerzas. Me apoyé en una roca, empujé con todo mi cuerpo y, cuando levanté la cabeza, la cruz estaba frente a mí. La toqué con la punta de los dedos, como si fuera un trofeo invisible.\nTomás levantó los brazos:\n—¡Lo logramos! Yo sonreí sin poder hablar. Desde arriba, el pueblo parecía un juguete y el viento silbaba como si aplaudiera.\nEse día entendí algo: a veces la batalla más grande es contra uno mismo."},{"id":"DL6-02","g":6,"t":"La última pieza","x":"En el taller de tecnología nos tenían un desafío final: construir un puente capaz de sostener cinco kilos sin quebrarse. Trabajamos en grupos y yo quedé con Diego y Martina. Ellos eran buenos para las ideas, pero yo temblaba cuando tenía que cortar madera o clavar.\n—Tú puedes con la parte final —me insistió Diego—. Solo tienes que fijar la pieza central.\nYo asentí, aunque sentí que me sudaban las manos.\nTrabajamos toda la semana. El puente era hermoso: firme, simétrico y brillante con la capa de barniz. El día de la prueba, todos estábamos nerviosos. Uno por uno, los equipos fueron presentando sus estructuras. Algunos puentes se quebraron apenas pusieron los pesos. El silencio era total.\n—Grupo 7 —anunció el profesor.\nAvancé con el corazón acelerado. Ajusté la última pieza y sentí cómo la madera vibraba. Tomé los discos metálicos y los fui apoyando de a uno. Uno, dos, tres… Cada caída sonaba como un trueno.\n—Faltan dos —susurró Martina.\nCuando puse el cuarto peso, escuché un crujido. Mi mano tembló. Quise retroceder.\n—No lo lograré —dije.\n—Confía —respondió Diego, mirándome fijo.\nTomé aire y coloqué el último disco. Esperé. Un segundo, dos, tres… El puente resistió.\nLa sala explotó en aplausos. Sentí un calor enorme en el pecho. Por primera vez entendí que el miedo no es una pared, sino una puerta que uno tiene que decidir abrir."},{"id":"DL7-01","g":7,"t":"El tué tué","x":"Mire, le resumimos la cuestión en dos palabras: el tue tué es un pájaro, pero no es un pájaro. O sea, parece pájaro, pero no es pájaro. ¿Se le ocurre quién es? Ese mismo: el Catete. O pueden ser los brujos también, aunque esos más andan como chonchones. Es negro, pero negro-negro, tanto que en la noche casi no se le ve, excepto por los ojos blancos, que destellan pura maldad.\nAnuncian su presencia con un canto bien especial, que es algo así como… ¡tue-tueeeeee! Si los oyes, no se olvide persignarse, para espantarlo. Pero a veces no se espanta, y en vez de eso se acerca al desdichado que anda por ahí, y se le pone al frente, aleteando y mirándolo fijo. Y ahí, en ese momento, ¿sabe qué hay que hacer? Primero, hay que saludarlo. Claro, con respeto: “Buenas noches”, don tué túe”, o “Acompañante de buena fe”, pero aquí preferimos saludarlo para que no crea que lo estamos espantando.\nEl tema es que, después de darle las buenas noches, el pájaro puede que se vaya o se quede. Si se va, macanudo, pero si se queda es porque está esperando la invitación a tomar once o desayuno. Uno lo dice no más, aunque se sienta ridículo de estar hablándole a un pájaro: “Véngase mañana a desayunar”. Así dice. Y ahí si que se va el pajarraco.\nClaro que se ha sabido de gente que al día siguiente recibe la visita de un anciano que pide desayuno. Al vecino de allá le pasó lo mismo, años atrás. Cuenta que el viejo que llegó se sentó a la mesa y que no dijo ni una sola palabra mientras comía lo poco que le habían podido dar."},{"id":"DL7-02","g":7,"t":"El cohete","x":"Fiorello Bodoni se despertaba de noche y oía los cohetes que pasaban suspirando por el cielo oscuro. Se levantaba y salía de puntillas al aire de la noche. Durante unos instantes no sentiría los olores a comida vieja de la casita junto al río. Durante un silencioso instante dejaría que su corazón subiera hacia el espacio, siguiendo a los cohetes.\nAhora, esta noche, de pie y semidesnudo en la oscuridad, observaba las fuentes de fuego que murmuraban en el aire. ¡Los cohetes en sus largos y veloces viajes a Marte, Saturno y Venus!\n—Bueno, bueno, Bodoni.\nBodoni dio un salto.\nEn un cajón, junto a la orilla del silencioso río, estaba sentado un viejo que también observaba los cohetes en la medianoche tranquila.\n—Oh, eres tú, Bramante.\n—¿Sales todas las noches, Bodoni?\n—Solo a tomar aire.\n—¿Sí? Yo prefiero mirar los cohetes -dijo el viejo Bramante-. Yo era aún un niño cuando empezaron a volar. Hace ochenta años. Y nunca he estado todavía en uno.\n—Yo haré un viaje uno de estos días.\n—No seas tonto —dijo Bramante—. No lo harás. Este mundo es para la gente rica. —El viejo sacudió su cabeza gris, recordando-. Cuando yo era joven alguien escribió unos carteles, con letras de fuego: El mundo del futuro. Ciencia, confort y novedades para todos. ¡Ja! Ochenta años. El futuro ha llegado. ¿Volamos en cohetes? No. Vivimos en chozas como nuestros padres.\n—Quizá mis hijos —dijo Bodoni.\n—¡Ni siquiera los hijos de tus hijos! —gritó el hombre viejo—. ¡Solo los ricos tienen sueños y cohetes! Bodoni titubeó.\n—Bramante, he ahorrado tres mil dólares. Tardé seis años en juntarlos. Para mi taller, para invertirlos en maquinaria. Pero desde hace un mes me despierto todas las noches. Oigo los cohetes. Pienso. Y esta noche, al fin, me he decidido. ¡Uno de nosotros irá a Marte!"},{"id":"DL8-01","g":8,"t":"El vaso de leche","x":"Sonrió el marinero. El paquete voló en el aire y fue a caer entre las manos ávidas del hambriento. Ni siquiera dio las gracias, y abriendo el envoltorio calentito aún, sentóse en el suelo, restregándose las manos alegremente al contemplar su contenido. Un atorrante de puerto puede no saber inglés, pero nunca se perdonaría no saber el suficiente como para pedir de comer a uno que habla ese idioma.\nEl joven que pasara momentos antes, parado a corta distancia de allí, presenció la escena.\nÉl también tenía hambre. Hacía tres días justos que no comía, tres largos días. Y más por timidez y vergüenza que por orgullo, se resistía a pararse delante de las escalas de los vapores, a las horas de comida, esperando de la generosidad de los marineros algún paquete que contuviera restos de guisos y trozos de carne. No podía hacerlo, no podría hacerlo nunca. Y cuando, como en el caso reciente, alguno le ofrecía sus sobras, las rechazaba heroicamente, sintiendo que la negativa aumentaba su hambre.\nSeis días hacía que vagaba por las callejuelas y muelles de aquel puerto. Lo había dejado allí un vapor inglés procedente de Punta Arenas, puerto en donde había desertado de un vapor en que servía como muchacho de capitán. Estuvo un mes allí, ayudando en sus ocupaciones a un austriaco pescador de centollas, y en el primer barco que pasó hacia el norte embarcóse ocultamente.\nLo descubrieron al día siguiente de zarpar y enviáronlo a trabajar en las calderas. En el primer puerto grande que tocó el vapor lo desembarcaron, y allí quedó, como un fardo sin dirección ni destinatario, sin conocer a nadie, sin un centavo en los bolsillos y sin saber trabajar en oficio alguno. Mientras estuvo allí el vapor, pudo comer, pero después..."},{"id":"DL8-02","g":8,"t":"Viaje al centro de la Tierra","x":"A las ocho de la mañana nos despertó un rayo de sol. Las facetas de la lava en las paredes lo recogieron y devolvieron convertido en una lluvia de chispitas.\n—¿Qué me dices, Alex? —preguntó mi tío— ¿Has pasado en tu vida alguna noche tan tranquila? No hay ruidos ni grito…\n—El lugar es muy tranquilo, en efecto —repliqué—. Pero esta misma calma tiene algo trágico.\n—No te apresures. Recién hemos bajado al nivel del mar. Puedes comprobarlo consultando el barómetro. Yo estoy deseando poder usar el manómetro.\n—¿No nos resultará perjudicial la presión?\n—No, iremos bajando lentamente y nuestros pulmones se irán acostumbrando a respirar en una atmósfera más comprimida. Pero dejémonos ya de charla y busquemos el paquete que arrojé.\nHans miró atentamente a su alrededor con su buena vista de cazador y lo descubrió en una saliente, unos treinta metros encima de nosotros.\nPoco después almorzamos frugalmente y regamos la comida con algunos tragos de ginebra. Mi tío anotó algunos datos en su cuadernillo de viaje y, señalándome solemnemente una galería oscura, anunció:\n—Ahora, Alex, vamos hacia el centro de la tierra. Considera que en este momento comienza nuestro viaje.\nEnseguida preparó lo necesario para procurarnos luz. Las galerías se iluminaron y cada cual se colocó su mochila. Alcé la cabeza y dirigí por última vez mis ojos hacia el inmenso tubo en el que se dibujaba el cielo de Islandia, temiendo no volver a verlo. En la última erupción la lava se había abierto paso a través del túnel que atravesábamos. El interior estaba alfombrado por un barniz espeso y brillante que centuplicaba la intensidad de nuestra luz.\nLa marcha no era demasiado difícil. El único cuidado que teníamos que tener era el de no deslizarnos por la pendiente. Pero, por suerte, algunas hinchazones en la erosión formaban peldaños."}];
+// Mismas metas que la app (palabras correctas por minuto): mínimos de [Muy rápida, Rápida, Medio alta, Medio baja, Lenta, Muy lenta].
+const TABLA = {3:[112,100,88,76,64,20],4:[140,125,111,97,85,20],5:[168,150,136,120,104,0],6:[196,178,161,143,125,0],7:[214,194,174,154,135,0],8:[214,194,174,154,135,0]};
+const NOMBRES_CAT = ['Muy rápida','Rápida','Medio alta','Medio baja','Lenta','Muy lenta'];
+const Q = new URLSearchParams(location.search);
+const CFG = { duracion: Math.max(5, +Q.get('dur') || 60) };   // ?dur=10 solo sirve para pruebas
+
+/* ===================== Lógica de comparación (voz → texto) ===================== */
+const LV = {};
+LV.norm = function (w) {
+  w = String(w).toLowerCase().replace(/ñ/g, '#').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9#]/g, '');
+  return w.replace(/#/g, 'ñ');
+};
+LV.fon = function (w) {   // pronunciación aproximada del español: b/v, s/z/c, ll/y, h muda, qu, gue/gui…
+  return w.replace(/qu/g, 'k').replace(/gu(?=[ei])/g, 'G').replace(/g(?=[ei])/g, 'j').replace(/G/g, 'g').replace(/ll/g, 'y').replace(/h/g, '')
+    .replace(/v/g, 'b').replace(/w/g, 'u').replace(/z/g, 's').replace(/c(?=[ei])/g, 's').replace(/c/g, 'k').replace(/x/g, 'ks');
+};
+LV.lev = function (a, b) {
+  const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) { const cur = [i]; for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = cur; }
+  return prev[n];
+};
+/** Tokeniza el texto en palabras reales (las que tienen letras o números) y deja el resto (espacios, rayas) como separadores. */
+LV.tokenizar = function (texto) {
+  const partes = texto.split(/(\s+)/), items = [], palabras = [];
+  partes.forEach(function (p) {
+    if (!p) return;
+    const n = LV.norm(p);
+    if (/^\s+$/.test(p) || !n) items.push({ s: p, w: -1 });
+    else { items.push({ s: p, w: palabras.length }); palabras.push({ raw: p, n: n, f: LV.fon(n) }); }
+  });
+  return { items: items, palabras: palabras };
+};
+/** Alinea lo reconocido con el texto. Devuelve {j, st}: j = palabras del texto que alcanzó a leer; st[k] = 'ok' | 'dud' | 'sub' | 'skip'. */
+LV.alinear = function (T, reconocido) {
+  const R = String(reconocido).split(/\s+/).map(LV.norm).filter(Boolean).map(function (n) { return { n: n, f: LV.fon(n) }; });
+  const m = R.length, n = T.length, C_NEAR = 0.35, C_SUB = 1, C_SKIP = 1, C_EXTRA = 0.5, C_MERGE = 0.1, BAND = 80;
+  const W = n + 1, dp = new Float32Array((m + 1) * W).fill(Infinity), pt = new Uint8Array((m + 1) * W);
+  const tm = T.map(function (t, j) { return j ? LV.fon(T[j - 1].n + t.n) : ''; });          // formas fundidas, calculadas una vez
+  const rm = R.map(function (r, i) { return i ? LV.fon(R[i - 1].n + r.n) : ''; });
+  const cost = function (r, t) { if (r.f === t.f) return 0; if (Math.min(r.f.length, t.f.length) >= 6 && LV.lev(r.f, t.f) <= 1) return C_NEAR; return C_SUB; };
+  dp[0] = 0;
+  for (let j = 1; j <= Math.min(n, BAND); j++) { dp[j] = j * C_SKIP; pt[j] = 2; }
+  for (let i = 1; i <= Math.min(m, BAND); i++) { dp[i * W] = i * C_EXTRA; pt[i * W] = 3; }
+  for (let i = 1; i <= m; i++) for (let j = Math.max(1, i - BAND), jh = Math.min(n, i + BAND); j <= jh; j++) {   // solo cerca de la diagonal: se lee de corrido
+    const k = i * W + j; let best = dp[(i - 1) * W + j - 1] + cost(R[i - 1], T[j - 1]), p = 1;
+    let v = dp[k - 1] + C_SKIP; if (v < best) { best = v; p = 2; }
+    v = dp[(i - 1) * W + j] + C_EXTRA; if (v < best) { best = v; p = 3; }
+    if (j >= 2 && R[i - 1].f === tm[j - 1]) { v = dp[(i - 1) * W + j - 2] + C_MERGE; if (v < best) { best = v; p = 4; } }
+    if (i >= 2 && rm[i - 1] === T[j - 1].f) { v = dp[(i - 2) * W + j - 1] + C_MERGE; if (v < best) { best = v; p = 5; } }
+    dp[k] = best; pt[k] = p;
+  }
+  let jb = 0, vb = Infinity;
+  for (let j = 0; j <= n; j++) { const v = dp[m * W + j]; if (v <= vb) { vb = v; jb = j; } }   // fin libre: el estudiante puede no llegar al final
+  const st = new Array(jb); let i = m, j = jb;
+  while (i > 0 || j > 0) {
+    const p = pt[i * W + j];
+    if (p === 1) { const c = cost(R[i - 1], T[j - 1]); st[j - 1] = c === 0 ? 'ok' : c === C_NEAR ? 'dud' : 'sub'; i--; j--; }
+    else if (p === 2) { st[j - 1] = 'skip'; j--; }
+    else if (p === 3) { i--; }
+    else if (p === 4) { st[j - 1] = 'ok'; st[j - 2] = 'ok'; i--; j -= 2; }
+    else { st[j - 1] = 'ok'; i -= 2; j--; }
+  }
+  return { j: jb, st: st };
+};
+/** Palabras correctas por minuto, igual que el cálculo del panel 2. */
+LV.calcular = function (segundos, intentadas, errores) {
+  const seg = Math.max(1, segundos), correctas = Math.max(0, intentadas - errores);
+  return { seg: seg, intentadas: intentadas, errores: errores, correctas: correctas, ppm: Math.round(correctas * 60 / seg) };
+};
+LV.categoria = function (ppm, g) {
+  const t = TABLA[g]; for (let i = 0; i < t.length; i++) if (ppm >= t[i]) return { nombre: NOMBRES_CAT[i], ok: i <= 2 };
+  return { nombre: g <= 4 ? 'No lector' : 'Muy lenta', ok: false };
+};
+
+/* ===================== Interfaz ===================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const S = { g: 4, id: null, lang: 'es-CL', G: null, R: null };
+
+function pantallaInicio() {
+  const lista = TEXTOS.filter(t => t.g === S.g);
+  if (!lista.some(t => t.id === S.id)) S.id = lista[0].id;
+  $('#app').innerHTML = `
+  <div class="card"><h1>Lectura en voz alta</h1>
+    <p>Lee el texto en voz alta durante <b>${CFG.duracion === 60 ? '1 minuto' : CFG.duracion + ' segundos'}</b>. La app te escucha, marca hasta dónde llegaste y calcula tus <b>palabras correctas por minuto</b>.</p>
+    <div class="aviso">🔒 <b>No se graba ni se guarda audio.</b> Para convertir la voz en texto, Chrome envía el sonido a Google en el momento. En este prototipo no se envía ni se guarda nada más.</div>
+    ${SR ? '' : '<p style="color:#b3261e"><b>Este navegador no tiene reconocimiento de voz.</b> Usa Chrome en el Chromebook.</p>'}
+    <label for="g">Curso</label><select id="g">${[3, 4, 5, 6, 7, 8].map(g => `<option value="${g}" ${g === S.g ? 'selected' : ''}>${g}° básico</option>`).join('')}</select>
+    <label for="t">Texto</label><select id="t">${lista.map(t => `<option value="${t.id}" ${t.id === S.id ? 'selected' : ''}>${esc(t.t)} (${t.x.split(/\s+/).length} palabras)</option>`).join('')}</select>
+    <label>Micrófono</label>
+    <div class="row"><button class="btn" id="bMic">🎤 Probar micrófono</button><div class="meter"><i id="nivel"></i></div></div>
+    <p class="small mut" id="micMsg" style="margin:4px 0 0">Habla normalmente: la barra debe moverse.</p>
+    <details><summary>Opciones avanzadas</summary>
+      <label for="lang">Idioma del reconocimiento</label><select id="lang">${['es-CL', 'es-419', 'es-ES', 'es-MX'].map(l => `<option ${l === S.lang ? 'selected' : ''}>${l}</option>`).join('')}</select></details>
+    <div class="row" style="margin-top:18px"><button class="btn pri" id="bIni" ${SR ? '' : 'disabled'}>▶ Empezar a leer</button></div>
+  </div>`;
+  $('#g').onchange = e => { S.g = +e.target.value; pantallaInicio(); };
+  $('#t').onchange = e => { S.id = e.target.value; };
+  $('#lang').onchange = e => { S.lang = e.target.value; };
+  $('#bMic').onclick = probarMic;
+  $('#bIni').onclick = iniciar;
+}
+
+let micStream = null, micCtx = null, micRAF = 0;
+async function probarMic() {
+  detenerMic();
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const an = micCtx.createAnalyser(); an.fftSize = 512; micCtx.createMediaStreamSource(micStream).connect(an);
+    const buf = new Uint8Array(an.fftSize); let max = 0;
+    const tick = () => {
+      an.getByteTimeDomainData(buf); let s = 0; for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; s += v * v; }
+      const rms = Math.sqrt(s / buf.length), pct = Math.min(100, rms * 320); max = Math.max(max, pct);
+      const n = $('#nivel'); if (n) n.style.width = pct + '%';
+      const m = $('#micMsg'); if (m && max > 8) m.textContent = '✅ Te escucho bien.';
+      micRAF = requestAnimationFrame(tick);
+    };
+    tick(); $('#micMsg').textContent = 'Di algo en voz alta…';
+    setTimeout(() => { if (max < 8 && $('#micMsg')) $('#micMsg').textContent = '⚠️ No escucho nada. Acerca el micrófono, sube el volumen o revisa el permiso del navegador.'; detenerMic(); }, 4500);
+  } catch (e) { $('#micMsg').textContent = '❌ No pude usar el micrófono (' + e.name + '). Revisa el permiso del sitio en la barra de direcciones.'; }
+}
+function detenerMic() {
+  cancelAnimationFrame(micRAF);
+  if (micStream) micStream.getTracks().forEach(t => t.stop()); micStream = null;
+  if (micCtx) micCtx.close().catch(() => { }); micCtx = null;
+  const n = $('#nivel'); if (n) n.style.width = '0';
+}
+
+/* ---------- Lectura ---------- */
+function textoHtml(tok, claseFn) {
+  return tok.items.map(it => it.w < 0 ? esc(it.s) : `<span class="w ${claseFn(it.w)}" data-i="${it.w}">${esc(it.s)}</span>`).join('');
+}
+function iniciar() {
+  detenerMic();
+  const tx = TEXTOS.find(t => t.id === S.id), tok = LV.tokenizar(tx.x);
+  S.G = { tx: tx, tok: tok, acc: '', sess: '', corriendo: false, reinicios: 0, conf: [], confN: 0, t0: 0, seg: 0, err: null, fin: false };
+  $('#app').innerHTML = `<div class="card"><h2>${esc(tx.t)}</h2>
+    <div class="cuenta" id="cuenta">3</div>
+    <p class="mut" style="text-align:center">Prepárate… empieza a leer cuando veas el cronómetro.</p></div>`;
+  let n = 3; const iv = setInterval(() => { n--; if (n > 0) $('#cuenta').textContent = n; else { clearInterval(iv); comenzar(); } }, 800);
+}
+function comenzar() {
+  const G = S.G;
+  $('#app').innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><b id="seg">${CFG.duracion} s</b><div class="row"><button class="btn ok" id="bFin">Terminé</button><button class="btn ghost" id="bCan">Cancelar</button></div></div>
+    <div class="tbar" style="margin:8px 0"><i id="tb"></i></div>
+    <p class="small mut" id="estado" style="margin:0">Iniciando micrófono…</p>
+    <div class="texto" id="tx">${textoHtml(G.tok, () => '')}</div></div>`;
+  $('#bFin').onclick = () => terminar('manual'); $('#bCan').onclick = () => { G.fin = true; parar(); pantallaInicio(); };
+  arrancarReconocimiento();
+}
+function arrancarReconocimiento() {
+  const G = S.G; if (G.fin) return;
+  const rec = new SR(); G.rec = rec;
+  rec.lang = S.lang; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
+  G.sess = '';
+  rec.onaudiostart = () => { if (!G.t0) empezarReloj(); };
+  rec.onstart = () => { G.corriendo = true; if (!G.t0) setTimeout(() => { if (!G.t0 && !G.fin) empezarReloj(); }, 900); };
+  rec.onresult = ev => {
+    let t = ''; for (let i = 0; i < ev.results.length; i++) { t += ev.results[i][0].transcript + ' '; if (ev.results[i].isFinal && ev.results[i][0].confidence) { G.conf.push(ev.results[i][0].confidence); } }
+    G.sess = t; actualizarVivo();
+  };
+  rec.onerror = ev => {
+    if (ev.error === 'no-speech' || ev.error === 'aborted') return;
+    G.err = ev.error;
+    const msg = { 'not-allowed': 'El navegador no dio permiso al micrófono.', 'service-not-allowed': 'El navegador no permite el reconocimiento de voz.', 'audio-capture': 'No encuentro un micrófono.', 'network': 'Sin conexión: el reconocimiento de voz necesita internet.', 'language-not-supported': 'Ese idioma no está disponible.' }[ev.error] || ('Error: ' + ev.error);
+    const e = $('#estado'); if (e) e.innerHTML = '❌ ' + msg;
+    if (['not-allowed', 'service-not-allowed', 'audio-capture', 'language-not-supported'].includes(ev.error)) { G.fin = true; setTimeout(() => { if (G.err) { $('#app').insertAdjacentHTML('afterbegin', `<div class="card" style="border-color:#f25c54"><b>${msg}</b> <button class="btn" id="bVol">Volver</button></div>`); $('#bVol').onclick = pantallaInicio; } }, 50); }
+  };
+  rec.onend = () => {
+    G.corriendo = false; G.acc += G.sess + ' '; G.sess = '';
+    if (G.stopping) { if (G.alTerminar) G.alTerminar(); return; }
+    if (!G.fin) { G.reinicios++; setTimeout(arrancarReconocimiento, 150); }   // Chrome corta tras silencios: se reanuda sin perder lo leído
+  };
+  try { rec.start(); } catch (e) { setTimeout(arrancarReconocimiento, 300); }
+}
+function empezarReloj() {
+  const G = S.G; G.t0 = performance.now(); const e = $('#estado'); if (e) e.textContent = '🎤 Escuchando… lee en voz alta.';
+  G.iv = setInterval(() => {
+    const t = (performance.now() - G.t0) / 1000, resto = Math.max(0, CFG.duracion - t);
+    const s = $('#seg'); if (s) s.textContent = Math.ceil(resto) + ' s'; const b = $('#tb'); if (b) b.style.width = (resto / CFG.duracion * 100) + '%';
+    if (resto <= 0) terminar('tiempo');
+  }, 100);
+}
+function actualizarVivo() {
+  const G = S.G; if (!G || G.fin || !$('#tx')) return;
+  const al = LV.alinear(G.tok.palabras, G.acc + G.sess);
+  document.querySelectorAll('#tx .w').forEach(el => { const i = +el.dataset.i; el.className = 'w' + (i < al.j ? ' leida' : '') + (i === al.j ? ' cur' : ''); });
+  const cur = document.querySelector('#tx .cur'); if (cur) { const r = cur.getBoundingClientRect(); if (r.bottom > innerHeight - 40 || r.top < 80) cur.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+}
+function parar() { const G = S.G; if (!G) return; clearInterval(G.iv); G.stopping = true; try { G.rec && G.rec.abort(); } catch (e) { } }
+function terminar(motivo) {
+  const G = S.G; if (!G || G.stopping) return;
+  const t = G.t0 ? (performance.now() - G.t0) / 1000 : 0;
+  G.seg = Math.min(CFG.duracion, Math.max(1, motivo === 'tiempo' ? CFG.duracion : t)); G.motivo = motivo;
+  clearInterval(G.iv); G.stopping = true;
+  const e = $('#estado'); if (e) e.textContent = 'Procesando lo que dijiste…';
+  let hecho = false; const fin = () => { if (hecho) return; hecho = true; G.fin = true; resultados(); };
+  G.alTerminar = fin; setTimeout(fin, 2200);   // espera breve a que el reconocedor entregue las últimas palabras
+  try { G.rec.stop(); } catch (er) { fin(); }
+}
+
+/* ---------- Resultados con revisión ---------- */
+function resultados() {
+  const G = S.G, al = LV.alinear(G.tok.palabras, G.acc);
+  S.R = { al: al, rev: {}, seg: G.seg || CFG.duracion };
+  pintarResultados();
+}
+function esErr(j) { const R = S.R; return R.rev[j] !== undefined ? R.rev[j] : (R.al.st[j] === 'sub' || R.al.st[j] === 'skip'); }
+function pintarResultados() {
+  const G = S.G, R = S.R, n = R.al.j;
+  let errAuto = 0, errRev = 0, cambios = 0;
+  for (let j = 0; j < n; j++) { const a = R.al.st[j] === 'sub' || R.al.st[j] === 'skip'; if (a) errAuto++; if (esErr(j)) errRev++; if (R.rev[j] !== undefined && R.rev[j] !== a) cambios++; }
+  const auto = LV.calcular(R.seg, n, errAuto), fin = LV.calcular(R.seg, n, errRev), cat = LV.categoria(fin.ppm, G.tx.g);
+  const clase = j => j >= n ? 'sinleer' : (esErr(j) ? 'err' : R.al.st[j] === 'dud' ? 'dud' : '') + (R.rev[j] !== undefined ? ' rev' : '');
+  $('#app').innerHTML = `<div class="card"><h2>Resultado · ${esc(G.tx.t)}</h2>
+    <div class="kpis"><div class="kpi"><b id="kPpm">${fin.ppm}</b><span>palabras correctas por minuto</span></div><div class="kpi"><b>${fin.correctas}<small style="font-size:18px"> de ${n}</small></b><span>palabras correctas / leídas</span></div><div class="kpi"><b>${Math.round(R.seg)} s</b><span>tiempo leyendo</span></div></div>
+    <p><span class="cat ${cat.ok ? 'si' : 'no'}">${cat.nombre}</span> <span class="mut small">en ${G.tx.g}° básico (meta satisfactoria desde ${TABLA[G.tx.g][2]} palabras por minuto)</span></p>
+    ${n === 0 ? '<div class="aviso">No alcancé a escuchar lectura. Prueba el micrófono y vuelve a intentarlo.</div>' : ''}
+    <div class="aviso">✏️ <b>Revisa:</b> el reconocedor puede equivocarse. Toca una palabra para cambiarla entre «bien leída» y «error».<br>
+      <span class="leyenda"><span><span class="w err">rojo</span> error</span><span><span class="w dud">naranjo</span> dudosa (se cuenta como bien)</span><span><span class="w sinleer">gris</span> no llegó</span></span></div>
+    <div class="texto rev" id="tx">${textoHtml(G.tok, clase)}</div>
+    <p class="small mut">Resultado automático (sin tus cambios): <b>${auto.ppm}</b> palabras por minuto · cambiaste <b>${cambios}</b> palabras.</p>
+    <div class="row"><button class="btn pri" id="bOtra">Leer otra vez</button><button class="btn" id="bCop">📋 Copiar datos de la prueba</button></div>
+    <details><summary>Datos técnicos de esta prueba</summary><pre id="dat">${esc(JSON.stringify(datosPrueba(auto, fin, cambios), null, 1))}</pre>
+      <p class="small mut">No incluyen nombre ni audio. Sirven para comparar el reconocedor con la revisión humana.</p></details></div>`;
+  $('#tx').onclick = e => { const w = e.target.closest('.w'); if (!w) return; const j = +w.dataset.i; if (j >= n) return; const a = R.al.st[j] === 'sub' || R.al.st[j] === 'skip', actual = esErr(j); const nuevo = !actual; if (nuevo === a) delete R.rev[j]; else R.rev[j] = nuevo; pintarResultados(); };
+  $('#bOtra').onclick = pantallaInicio;
+  $('#bCop').onclick = () => { navigator.clipboard.writeText($('#dat').textContent).then(() => { $('#bCop').textContent = '✅ Copiado'; }, () => { }); };
+}
+function datosPrueba(auto, fin, cambios) {
+  const G = S.G, R = S.R, c = G.conf, falsos = { malMarcadas: 0, bienMarcadas: 0 };
+  for (let j = 0; j < R.al.j; j++) { const a = R.al.st[j] === 'sub' || R.al.st[j] === 'skip'; if (R.rev[j] !== undefined && R.rev[j] !== a) { if (a) falsos.malMarcadas++; else falsos.bienMarcadas++; } }
+  return { texto: G.tx.id, curso: G.tx.g, idioma: S.lang, segundos: Math.round(R.seg * 10) / 10, motivo_fin: G.motivo,
+    palabras_leidas: R.al.j, errores_auto: auto.errores, ppm_auto: auto.ppm, errores_revisados: fin.errores, ppm_revisado: fin.ppm,
+    cambios_manuales: cambios, errores_falsos_del_reconocedor: falsos.malMarcadas, errores_que_no_detecto: falsos.bienMarcadas,
+    reinicios_reconocedor: G.reinicios, confianza_media: c.length ? Math.round(c.reduce((a, b) => a + b, 0) / c.length * 100) / 100 : null,
+    palabras_reconocidas: G.acc.trim().split(/\s+/).filter(Boolean).length, navegador: navigator.userAgent };
+}
+
+window.LV = LV; window.__S = S;
+pantallaInicio();
+</script>
+</body>
+</html>
